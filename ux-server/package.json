@@ -1,0 +1,23 @@
+{
+  "name": "ux-server",
+  "version": "1.0.0",
+  "description": "AI-driven UX design system server",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "ai",
+    "ux",
+    "design",
+    "code-generation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.5.25",
+    "axios": "^1.6.0"
+  }
+}

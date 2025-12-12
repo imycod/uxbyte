@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+import CategoryManagement from '@/components/CategoryManagementPage/CategoryManagement.vue'
+import { MOCK_CATEGORIES } from '@/data/CategoryManagementPage'
+---
+
+<BaseLayout title="分类管理页">
+  <Header client:load />
+  
+  <main class="flex-1">
+    <div class="container mx-auto px-4 py-8">
+      <CategoryManagement 
+        client:load 
+        :categories="MOCK_CATEGORIES"
+      />
+    </div>
+  </main>
+
+  <Footer client:load />
+</BaseLayout>
+
+<style>
+  main {
+    min-height: calc(100vh - 8rem);
+  }
+</style>

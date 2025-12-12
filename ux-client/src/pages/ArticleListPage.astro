@@ -1,0 +1,29 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+import ArticleList from '@/components/ArticleListPage/ArticleList.vue'
+import { MOCK_ARTICLES, MOCK_CATEGORIES } from '@/data/ArticleListPage'
+---
+
+<BaseLayout title="文章列表页">
+  <Header client:load />
+  
+  <main class="flex-1">
+    <div class="container mx-auto px-4 py-8">
+      <ArticleList 
+        client:load 
+        :articles="MOCK_ARTICLES"
+        :categories="MOCK_CATEGORIES"
+      />
+    </div>
+  </main>
+
+  <Footer client:load />
+</BaseLayout>
+
+<style>
+  main {
+    min-height: calc(100vh - 8rem);
+  }
+</style>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI驱动的UX设计系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .char-count {
+            text-align: right;
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .examples {
+            margin-top: 15px;
+        }
+
+        .examples-title {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .example-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .example-chip {
+            background: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-chip:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .progress-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .progress-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-log {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .log-entry.success {
+            color: #4caf50;
+        }
+
+        .log-entry.error {
+            color: #f44336;
+        }
+
+        .log-entry.info {
+            color: #2196f3;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        .error-message strong {
+            color: #f44336;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🎨 AI驱动的UX设计系统</h1>
+        <p class="subtitle">用自然语言描述你的需求，AI将为你生成完整的应用设计和代码</p>
+
+        <div class="input-section">
+            <label for="description">描述你的应用需求</label>
+            <textarea id="description" placeholder="例如：帮我生成一个访客管理系统，包含访客登记、访客列表、访客审批等功能..."></textarea>
+            <div class="char-count">
+                <span id="charCount">0</span> 字符
+            </div>
+
+            <div class="examples">
+                <div class="examples-title">💡 示例需求（点击使用）</div>
+                <div class="example-chips">
+                    <div class="example-chip" data-text="帮我生成一个访客管理系统">访客管理系统</div>
+                    <div class="example-chip" data-text="帮我生成一个在线商城，包含商品展示、购物车、订单管理">在线商城</div>
+                    <div class="example-chip" data-text="帮我生成一个博客系统，包含文章列表、文章详情、分类管理">博客系统</div>
+                    <div class="example-chip" data-text="帮我生成一个任务管理系统，包含任务列表、任务详情、进度跟踪">任务管理</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-secondary" id="clearBtn">清空</button>
+            <button class="btn-primary" id="submitBtn">开始生成</button>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-header">
+                <div class="spinner"></div>
+                <div class="progress-title" id="progressTitle">正在处理...</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-log" id="progressLog"></div>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            <strong>错误</strong>
+            <span id="errorText"></span>
+        </div>
+    </div>
+
+    <script>
+        const descriptionEl = document.getElementById('description');
+        const charCountEl = document.getElementById('charCount');
+        const submitBtn = document.getElementById('submitBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressTitle = document.getElementById('progressTitle');
+        const progressFill = document.getElementById('progressFill');
+        const progressLog = document.getElementById('progressLog');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+
+        let eventSource = null;
+
+        // Generate or retrieve clientId (persistent across sessions)
+        let clientId = localStorage.getItem('clientId');
+        if (!clientId) {
+            clientId = 'client_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('clientId', clientId);
+        }
+
+        // Function to generate random projectId
+        function generateProjectId() {
+            return 'project_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Character count
+        descriptionEl.addEventListener('input', () => {
+            charCountEl.textContent = descriptionEl.value.length;
+        });
+
+        // Example chips
+        document.querySelectorAll('.example-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                descriptionEl.value = chip.dataset.text;
+                charCountEl.textContent = chip.dataset.text.length;
+            });
+        });
+
+        // Clear button
+        clearBtn.addEventListener('click', () => {
+            descriptionEl.value = '';
+            charCountEl.textContent = '0';
+            hideError();
+        });
+
+        // Submit button
+        submitBtn.addEventListener('click', async () => {
+            const description = descriptionEl.value.trim();
+
+            if (!description) {
+                showError('请输入应用需求描述');
+                return;
+            }
+
+            hideError();
+            startProgress();
+
+            try {
+                // Generate new projectId for this request
+                const projectId = generateProjectId();
+
+                // Store projectId for later use
+                sessionStorage.setItem('currentProjectId', projectId);
+
+                // Connect to SSE
+                connectSSE();
+
+                // Send request with clientId and projectId
+                const response = await fetch('/api/workflow/plan', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        description,
+                        clientId,
+                        projectId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || '请求失败');
+                }
+
+            } catch (error) {
+                showError(error.message);
+                stopProgress();
+                disconnectSSE();
+            }
+        });
+
+        // SSE Connection
+        function connectSSE() {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource('/api/events');
+
+            eventSource.addEventListener('connected', (e) => {
+                const data = JSON.parse(e.data);
+                addLog('已连接到服务器', 'info');
+            });
+
+            eventSource.addEventListener('workflow:planning', (e) => {
+                const data = JSON.parse(e.data);
+                updateProgress(20, '正在分析需求...');
+                addLog(data.message, 'info');
+            });
+
+            eventSource.addEventListener('workflow:progress', (e) => {
+                const data = JSON.parse(e.data);
+                updateProgress(40, '正在规划页面结构...');
+                addLog(data.message || '处理中...', 'info');
+            });
+
+            eventSource.addEventListener('workflow:complete', (e) => {
+                const data = JSON.parse(e.data);
+                updateProgress(100, '工作流规划完成!');
+                addLog(data.message, 'success');
+
+                // Redirect to flowchart after 1 second
+                setTimeout(() => {
+                    window.location.href = '/flowchart.html';
+                }, 1000);
+            });
+
+            eventSource.addEventListener('workflow:error', (e) => {
+                const data = JSON.parse(e.data);
+                showError(data.error || '发生错误');
+                stopProgress();
+                disconnectSSE();
+            });
+
+            eventSource.onerror = (error) => {
+                console.error('SSE Error:', error);
+                // Don't show error immediately, might be reconnecting
+            };
+        }
+
+        function disconnectSSE() {
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+        }
+
+        function startProgress() {
+            progressSection.classList.add('active');
+            progressLog.innerHTML = '';
+            submitBtn.disabled = true;
+            updateProgress(10, '正在连接...');
+        }
+
+        function stopProgress() {
+            submitBtn.disabled = false;
+        }
+
+        function updateProgress(percent, title) {
+            progressFill.style.width = percent + '%';
+            progressTitle.textContent = title;
+        }
+
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `• ${message}`;
+            progressLog.appendChild(entry);
+            progressLog.scrollTop = progressLog.scrollHeight;
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.add('active');
+        }
+
+        function hideError() {
+            errorMessage.classList.remove('active');
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            disconnectSSE();
+        });
+    </script>
+</body>
+
+</html>

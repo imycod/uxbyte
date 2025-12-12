@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作流可视化 - AI UX设计系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .page-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .page-item {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .page-item:hover {
+            border-color: #667eea;
+            background: #f9f9ff;
+        }
+
+        .page-item.selected {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+
+        .page-item.generating {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .page-item.complete {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .page-item.error {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .page-checkbox {
+            margin-top: 2px;
+        }
+
+        .page-info {
+            flex: 1;
+        }
+
+        .page-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .page-desc {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .page-status {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .page-status.pending {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .page-status.generating {
+            background: #ff9800;
+            color: white;
+        }
+
+        .page-status.complete {
+            background: #4caf50;
+            color: white;
+        }
+
+        .page-status.error {
+            background: #f44336;
+            color: white;
+        }
+
+        .select-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+        }
+
+        .select-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .visualization {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            min-height: calc(100vh - 140px);
+        }
+
+        .workflow-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .workflow-info h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .workflow-info p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .stat-item {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .stat-item strong {
+            color: #667eea;
+            font-size: 18px;
+            display: block;
+        }
+
+        .progress-panel {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .progress-panel.active {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .progress-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-log {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .log-entry.success {
+            color: #4caf50;
+        }
+
+        .log-entry.error {
+            color: #f44336;
+        }
+
+        .log-entry.info {
+            color: #2196f3;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>📊 工作流可视化</h1>
+        <div class="header-actions">
+            <button class="btn btn-secondary" onclick="window.location.href='/index.html'">返回首页</button>
+            <button class="btn btn-primary" id="generateBtn" disabled>生成选中页面</button>
+            <button class="btn btn-primary" id="previewBtn" style="display:none;">预览应用</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="sidebar">
+            <h2>页面列表</h2>
+            <div class="page-list" id="pageList">
+                <div class="empty-state">
+                    <p>加载中...</p>
+                </div>
+            </div>
+            <div class="select-actions">
+                <button class="btn btn-secondary" id="selectAllBtn">全选</button>
+                <button class="btn btn-secondary" id="deselectAllBtn">取消</button>
+            </div>
+        </div>
+
+        <div class="visualization">
+            <div class="workflow-info" id="workflowInfo">
+                <h3>工作流信息</h3>
+                <p id="workflowDesc">加载工作流数据...</p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <strong id="totalPages">0</strong>
+                        总页面数
+                    </div>
+                    <div class="stat-item">
+                        <strong id="selectedPages">0</strong>
+                        已选择
+                    </div>
+                    <div class="stat-item">
+                        <strong id="generatedPages">0</strong>
+                        已生成
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-panel" id="progressPanel">
+                <div class="progress-header">
+                    <div class="spinner"></div>
+                    <div class="progress-title" id="progressTitle">正在生成...</div>
+                </div>
+                <div class="progress-log" id="progressLog"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let workflow = null;
+        let selectedPageIds = new Set();
+        let generationStatus = new Map();
+        let eventSource = null;
+
+        // Load workflow on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadWorkflow();
+            connectSSE();
+        });
+
+        async function loadWorkflow() {
+            try {
+                const response = await fetch('/api/workflow/status');
+                const data = await response.json();
+
+                if (!data.hasWorkflow) {
+                    window.location.href = '/index.html';
+                    return;
+                }
+
+                workflow = data.workflow;
+
+                // Initialize generation status
+                if (data.generationStatus) {
+                    data.generationStatus.forEach(status => {
+                        generationStatus.set(status.pageId, status);
+                    });
+                }
+
+                renderWorkflow();
+            } catch (error) {
+                console.error('Failed to load workflow:', error);
+                alert('加载工作流失败: ' + error.message);
+            }
+        }
+
+        function renderWorkflow() {
+            if (!workflow) return;
+
+            // Update workflow info
+            document.getElementById('workflowDesc').textContent = workflow.functional_spec;
+            document.getElementById('totalPages').textContent = workflow.pages.length;
+
+            // Render page list
+            const pageList = document.getElementById('pageList');
+            pageList.innerHTML = '';
+
+            workflow.pages.forEach(page => {
+                const status = generationStatus.get(page.id);
+                const pageEl = createPageElement(page, status);
+                pageList.appendChild(pageEl);
+            });
+
+            updateStats();
+        }
+
+        function createPageElement(page, status) {
+            const div = document.createElement('div');
+            div.className = 'page-item';
+            div.dataset.pageId = page.id;
+
+            if (status) {
+                div.classList.add(status.status);
+            }
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'page-checkbox';
+            checkbox.checked = selectedPageIds.has(page.id);
+            checkbox.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    selectedPageIds.add(page.id);
+                } else {
+                    selectedPageIds.delete(page.id);
+                }
+                updateStats();
+                updateGenerateButton();
+            });
+
+            const info = document.createElement('div');
+            info.className = 'page-info';
+
+            const name = document.createElement('div');
+            name.className = 'page-name';
+            name.textContent = page.name;
+
+            const desc = document.createElement('div');
+            desc.className = 'page-desc';
+            desc.textContent = page.description;
+
+            info.appendChild(name);
+            info.appendChild(desc);
+
+            if (status) {
+                const statusEl = document.createElement('span');
+                statusEl.className = `page-status ${status.status}`;
+                statusEl.textContent = {
+                    pending: '待生成',
+                    generating: '生成中...',
+                    complete: '已完成',
+                    error: '错误'
+                }[status.status] || status.status;
+                info.appendChild(statusEl);
+            }
+
+            div.appendChild(checkbox);
+            div.appendChild(info);
+
+            return div;
+        }
+
+        function updateStats() {
+            document.getElementById('selectedPages').textContent = selectedPageIds.size;
+
+            const generatedCount = Array.from(generationStatus.values())
+                .filter(s => s.status === 'complete').length;
+            document.getElementById('generatedPages').textContent = generatedCount;
+        }
+
+        function updateGenerateButton() {
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = selectedPageIds.size === 0;
+        }
+
+        // Select all / deselect all
+        document.getElementById('selectAllBtn').addEventListener('click', () => {
+            workflow.pages.forEach(page => {
+                const status = generationStatus.get(page.id);
+                if (!status || status.status !== 'complete') {
+                    selectedPageIds.add(page.id);
+                }
+            });
+            renderWorkflow();
+            updateGenerateButton();
+        });
+
+        document.getElementById('deselectAllBtn').addEventListener('click', () => {
+            selectedPageIds.clear();
+            renderWorkflow();
+            updateGenerateButton();
+        });
+
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            if (selectedPageIds.size === 0) return;
+
+            const pageIds = Array.from(selectedPageIds);
+
+            try {
+                document.getElementById('progressPanel').classList.add('active');
+                document.getElementById('progressLog').innerHTML = '';
+                addLog(`开始生成 ${pageIds.length} 个页面...`, 'info');
+
+                const response = await fetch('/api/workflow/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ pageIds })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+
+                addLog(result.message, 'success');
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                addLog('生成失败: ' + error.message, 'error');
+            }
+        });
+
+        // Preview button
+        document.getElementById('previewBtn').addEventListener('click', () => {
+            window.location.href = '/preview.html';
+        });
+
+        // SSE Connection
+        function connectSSE() {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource('/api/events');
+
+            eventSource.addEventListener('generation:started', (e) => {
+                const data = JSON.parse(e.data);
+                addLog(data.message, 'info');
+            });
+
+            eventSource.addEventListener('generation:progress', (e) => {
+                const data = JSON.parse(e.data);
+
+                if (data.pageId) {
+                    generationStatus.set(data.pageId, {
+                        status: data.type.includes('error') ? 'error' :
+                            data.type.includes('complete') ? 'complete' : 'generating',
+                        pageName: data.pageName,
+                        error: data.error
+                    });
+                    renderWorkflow();
+                }
+
+                const message = data.pageName ?
+                    `[${data.pageName}] ${data.progress?.message || data.type}` :
+                    data.message || data.type;
+
+                const logType = data.type.includes('error') ? 'error' :
+                    data.type.includes('complete') ? 'success' : 'info';
+
+                addLog(message, logType);
+            });
+
+            eventSource.addEventListener('generation:complete', (e) => {
+                const data = JSON.parse(e.data);
+                addLog(data.message, 'success');
+
+                // Show preview button
+                document.getElementById('previewBtn').style.display = 'inline-block';
+
+                // Auto-trigger build
+                setTimeout(() => {
+                    triggerBuild();
+                }, 1000);
+            });
+
+            eventSource.addEventListener('generation:error', (e) => {
+                const data = JSON.parse(e.data);
+                addLog('生成错误: ' + data.error, 'error');
+            });
+
+            eventSource.addEventListener('build:started', (e) => {
+                const data = JSON.parse(e.data);
+                addLog(data.message, 'info');
+            });
+
+            eventSource.addEventListener('build:progress', (e) => {
+                const data = JSON.parse(e.data);
+                if (data.message) {
+                    addLog(data.message, 'info');
+                }
+            });
+
+            eventSource.addEventListener('build:complete', (e) => {
+                const data = JSON.parse(e.data);
+                addLog('✅ ' + data.message, 'success');
+            });
+
+            eventSource.addEventListener('build:error', (e) => {
+                const data = JSON.parse(e.data);
+                addLog('❌ 构建失败: ' + data.error, 'error');
+            });
+        }
+
+        async function triggerBuild() {
+            try {
+                addLog('开始构建项目...', 'info');
+
+                const response = await fetch('/api/build', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                console.error('Build error:', error);
+                addLog('构建失败: ' + error.message, 'error');
+            }
+        }
+
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `• ${message}`;
+
+            const log = document.getElementById('progressLog');
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Cleanup
+        window.addEventListener('beforeunload', () => {
+            if (eventSource) {
+                eventSource.close();
+            }
+        });
+    </script>
+</body>
+
+</html>
