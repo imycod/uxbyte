@@ -22,3 +22,16 @@ changelog.generated.md
 packages/vant/README.md
 
 token.txt
+
+dist/*
+
+node_modules/*
+
+ux-client/node_modules
+ux-server/node_modules
+
+
+ux-client/dist/*
+
+ux-client/node_modules/*
+ux-server/node_modules/*

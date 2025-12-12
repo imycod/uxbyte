@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+import MainContent from '@/components/HomePage/MainContent.vue'
+import { MOCK_HOME_BANNERS, MOCK_HOME_CATEGORIES, MOCK_HOME_PRODUCTS } from '@/data/HomePage'
+---
+
+<BaseLayout title="首页">
+  <Header client:load />
+  
+  <main class="flex-1">
+    <div class="container mx-auto px-4 py-8">
+      <MainContent 
+        client:load 
+        banners={MOCK_HOME_BANNERS}
+        categories={MOCK_HOME_CATEGORIES}
+        products={MOCK_HOME_PRODUCTS}
+      />
+    </div>
+  </main>
+
+  <Footer client:load />
+</BaseLayout>
+
+<style>
+  main {
+    min-height: calc(100vh - 8rem);
+  }
+</style>

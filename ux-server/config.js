@@ -32,7 +32,7 @@ export const config = {
 
     preview: {
         // port: process.env.PREVIEW_PORT || 4321,
-        port: 4321,
+        port: 4322,
         host: 'localhost'
     },
 

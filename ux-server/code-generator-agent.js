@@ -30,6 +30,9 @@ export class CodeGeneratorAgent extends Agent {
 8. Vue3 SFC文件必须包含 <template>、<script>、<style> 标签和它们的</template>、</script>、</style>闭合标签
 9. 禁止使用vue-router，所有跳转都用a链接跳转/[page-name].html
 10. 页面之间的链接 path 禁止使用中文
+11. **Props必须声明默认值**: 所有组件的Props必须使用 \`withDefaults\` 或默认值解构，防止 \`undefined\` 错误 (例如 \`const props = withDefaults(defineProps<Props>(), { ... })\`)
+12. **防御性编程**: 在访问 props 的属性时（如 \`props.items.filter\`），必须确保对象存在，或提供默认空数组/对象。
+13. **SSR兼容性 (CRITICAL)**: 禁止在 \`<script setup>\` 的顶层直接访问 \`window\`、\`document\`、\`localStorage\` 等浏览器API。这些代码在构建时会在服务器端执行，导致 "window is not defined" 错误。必须将这些代码放在 \`onMounted(() => { ... })\` 中，或者使用 \`if (typeof window !== 'undefined') { ... }\` 包裹。
 
 文件组织结构（非常重要！）：
 1. **共享组件** - components/common/
@@ -489,6 +492,18 @@ ${relatedPages.map(p => `- ${p.name}: ${p.description}`).join('\n')}
    - 使用Vue 3 Composition API
    - 使用Tailwind CSS样式
    - 添加必要的类型定义
+   - **必须使用 \`withDefaults\` 为所有 props 提供默认值**
+   - 示例:
+   \`\`\`typescript
+   interface Props {
+     title?: string;
+     items?: any[];
+   }
+   const props = withDefaults(defineProps<Props>(), {
+     title: 'Default Title',
+     items: () => []
+   });
+   \`\`\`
 
 2. **数据文件（如果需要）** - data/${pageFileName}.ts
    - 定义TypeScript接口

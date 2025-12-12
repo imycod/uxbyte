@@ -12,7 +12,7 @@ export class BuildManager {
         this.currentBuild = null;
         this.buildQueue = [];
         this.isBuilding = false;
-        this.maxFixAttempts = 3; // 最大自动修复尝试次数
+        this.maxFixAttempts = 5; // 最大自动修复尝试次数
     }
 
     /**

@@ -26,8 +26,24 @@
 - **Tailwind CSS** - 样式框架
 
 ## 预览效果
-
-
+![alt text](image-1.png)
+启动命令
+![alt text](image.png)
+workflowAgent 会规划页面的组织结构
+![alt text](image-2.png)
+规划完成可以勾选页面进行并发生成
+![alt text](image-3.png)
+会先依照提示词生成通用组件、ui组件，然后生成页面，当页面生成失败后会尝试重新生成， 整个过程是自动化的，不出意外的话在生成完后会自动打包，如果打包失败build-manager会调用 build-fix-agent 自动修复打包错误 重新打包，你只需要点击右上角预览按钮即可。
+![alt text](image-4.png)
+构建错误会自动修复
+![alt text](image-6.png)
+构建错误有5次尝试修复错误，修复成功后会自动打包， 点击预览应用
+![alt text](image-7.png)
+![alt text](image-11.png)
+![alt text](image-8.png)
+![alt text](image-10.png)
+![alt text](image-9.png)
+最终效果
 ## 快速开始
 
 ### 1. 安装依赖

@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+import MainContent from '@/components/ProductDetailPage/MainContent.vue'
+import { MOCK_PRODUCT_DETAIL } from '@/data/ProductDetailPage'
+---
+
+<BaseLayout title="商品详情页">
+  <Header client:load />
+  
+  <main class="flex-1">
+    <div class="container mx-auto px-4 py-8">
+      <MainContent 
+        client:load 
+        product={MOCK_PRODUCT_DETAIL}
+      />
+    </div>
+  </main>
+
+  <Footer client:load />
+</BaseLayout>
+
+<style>
+  main {
+    min-height: calc(100vh - 8rem);
+  }
+</style>
