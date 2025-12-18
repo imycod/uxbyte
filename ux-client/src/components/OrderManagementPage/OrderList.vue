@@ -1,123 +1,196 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-    <div class="p-6 border-b border-gray-200">
-      <h2 class="text-xl font-bold text-gray-900">我的订单</h2>
-    </div>
-    
-    <div v-if="orders.length > 0" class="divide-y divide-gray-200">
-      <div 
-        v-for="order in orders" 
-        :key="order.id"
-        class="p-6 hover:bg-gray-50 transition-colors"
+  <div class=\"order-management-page\">
+    <!-- Page header -->
+    <div class=\"flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4\">
+      <div>
+        <h1 class=\"text-2xl md:text-3xl font-bold text-foreground\">订单管理</h1>
+        <p class=\"text-muted-foreground mt-2\">查看和管理您的所有订单</p>
+      </div>
+      <button
+        @click=\"goToHomePage\"
+        class=\"px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center\"
       >
-        <div class="flex flex-col md:flex-row md:justify-between md:items-center">
-          <div>
-            <div class="flex flex-col sm:flex-row sm:items-center">
-              <h3 class="text-lg font-medium text-gray-900">
-                订单号: {{ order.orderNumber }}
-              </h3>
-              <span class="ml-0 sm:ml-4 mt-1 sm:mt-0 text-sm text-gray-500">
-                {{ formatDate(order.date) }}
-              </span>
-            </div>
-            
-            <div class="mt-2 flex flex-wrap gap-2">
-              <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium', getStatusColor(order.status)]">
-                {{ getStatusText(order.status) }}
-              </span>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                {{ order.items.length }} 件商品
-              </span>
-            </div>
-          </div>
-          
-          <div class="mt-4 md:mt-0 flex flex-col items-end">
-            <p class="text-lg font-medium text-gray-900">¥{{ order.total.toFixed(2) }}</p>
-            <button
-              @click="viewOrderDetail(order.id)"
-              class="mt-2 text-sm font-medium text-primary hover:text-primary-dark"
-            >
-              查看详情 →
-            </button>
-          </div>
+        <svg
+          class=\"w-5 h-5 mr-2\"
+          fill=\"none\"
+          stroke=\"currentColor\"
+          viewBox=\"0 0 24 24\"
+          xmlns=\"http://www.w3.org/2000/svg\"
+        >
+          <path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M10 19l-7-7m0 0l7-7m-7 7h18\"></path>
+        </svg>
+        返回首页
+      </button>
+    </div>
+
+    <!-- Orders list -->
+    <div class=\"bg-card border border-border rounded-lg shadow-sm overflow-hidden\">
+      <div v-if=\"orders.length === 0\" class=\"text-center py-12\">
+        <svg
+          class=\"mx-auto h-12 w-12 text-muted-foreground\"
+          fill=\"none\"
+          stroke=\"currentColor\"
+          viewBox=\"0 0 24 24\"
+          xmlns=\"http://www.w3.org/2000/svg\"
+        >
+          <path
+            stroke-linecap=\"round\"
+            stroke-linejoin=\"round\"
+            stroke-width=\"2\"
+            d=\"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2\"
+          ></path>
+        </svg>
+        <h3 class=\"mt-2 text-lg font-medium text-foreground\">暂无订单</h3>
+        <p class=\"mt-1 text-muted-foreground\">您还没有任何订单记录</p>
+        <div class=\"mt-6\">
+          <button
+            @click=\"goToHomePage\"
+            class=\"px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors\"
+          >
+            去购物
+          </button>
         </div>
-        
-        <!-- 订单商品缩略图 -->
-        <div class="mt-4 flex gap-2 overflow-x-auto">
-          <div 
-            v-for="item in order.items.slice(0, 5)" 
-            :key="item.id"
-            class="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden"
+      </div>
+
+      <div v-else>
+        <div class=\"px-6 py-4 border-b border-border\">
+          <h2 class=\"text-lg font-semibold text-foreground\">订单列表</h2>
+        </div>
+        <div class=\"divide-y divide-border\">
+          <transition-group
+            name=\"order-list\"
+            tag=\"div\"
+            class=\"divide-y divide-border\"
+            enter-active-class=\"transition-all duration-300 ease-out\"
+            enter-from-class=\"opacity-0 transform translate-y-2\"
+            enter-to-class=\"opacity-100 transform translate-y-0\"
+            leave-active-class=\"transition-all duration-300 ease-in\"
+            leave-from-class=\"opacity-100 transform translate-y-0\"
+            leave-to-class=\"opacity-0 transform -translate-y-2\"
           >
-            <img 
-              :src="item.image" 
-              :alt="item.name"
-              class="w-full h-full object-cover"
+            <div
+              v-for=\"order in orders\"
+              :key=\"order.id\"
+              class=\"px-6 py-4 hover:bg-muted/50 transition-colors cursor-pointer\"
+              @click=\"viewOrderDetail(order.id)\"
             >
-          </div>
-          <div 
-            v-if="order.items.length > 5"
-            class="flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md flex items-center justify-center text-gray-500 text-sm"
-          >
-            +{{ order.items.length - 5 }}
-          </div>
+              <div class=\"flex flex-col md:flex-row md:items-center justify-between gap-4\">
+                <div class=\"flex-1\">
+                  <div class=\"flex flex-col sm:flex-row sm:items-center justify-between gap-2\">
+                    <h3 class=\"font-medium text-foreground\">
+                      订单号: {{ order.id }}
+                    </h3>
+                    <span
+                      :class=\"ORDER_STATUS_COLORS[order.status]\"
+                      class=\"px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap w-fit\"
+                    >
+                      {{ ORDER_STATUS_LABELS[order.status] }}
+                    </span>
+                  </div>
+                  <p class=\"text-sm text-muted-foreground mt-1\">
+                    {{ formatDate(order.date) }} · {{ order.items.length }} 件商品
+                  </p>
+                </div>
+                <div class=\"flex items-center justify-between gap-4\">
+                  <div class=\"text-right\">
+                    <p class=\"font-medium text-foreground\">¥{{ order.total.toFixed(2) }}</p>
+                    <p class=\"text-sm text-muted-foreground\">{{ order.shippingAddress }}</p>
+                  </div>
+                  <button
+                    class=\"px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors\"
+                    @click.stop=\"viewOrderDetail(order.id)\"
+                  >
+                    查看详情
+                  </button>
+                </div>
+              </div>
+            </div>
+          </transition-group>
         </div>
       </div>
     </div>
-    
-    <div v-else class="p-12 text-center">
-      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-      </svg>
-      <h3 class="mt-2 text-lg font-medium text-gray-900">暂无订单</h3>
-      <p class="mt-1 text-gray-500">您还没有任何订单记录</p>
-      <div class="mt-6">
-        <button
-          @click="goToHomePage"
-          type="button"
-          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-        >
-          去购物
-        </button>
+
+    <!-- Order statistics -->
+    <div class=\"grid grid-cols-1 md:grid-cols-5 gap-4 mt-6\">
+      <div class=\"bg-card border border-border rounded-lg p-4 shadow-sm\">
+        <p class=\"text-sm text-muted-foreground\">总订单数</p>
+        <p class=\"text-2xl font-bold text-foreground\">{{ orders.length }}</p>
+      </div>
+      <div class=\"bg-card border border-border rounded-lg p-4 shadow-sm\">
+        <p class=\"text-sm text-muted-foreground\">待处理</p>
+        <p class=\"text-2xl font-bold text-foreground\">
+          {{ orders.filter(o => o.status === 'pending').length }}
+        </p>
+      </div>
+      <div class=\"bg-card border border-border rounded-lg p-4 shadow-sm\">
+        <p class=\"text-sm text-muted-foreground\">处理中</p>
+        <p class=\"text-2xl font-bold text-foreground\">
+          {{ orders.filter(o => o.status === 'processing').length }}
+        </p>
+      </div>
+      <div class=\"bg-card border border-border rounded-lg p-4 shadow-sm\">
+        <p class=\"text-sm text-muted-foreground\">已发货</p>
+        <p class=\"text-2xl font-bold text-foreground\">
+          {{ orders.filter(o => o.status === 'shipped').length }}
+        </p>
+      </div>
+      <div class=\"bg-card border border-border rounded-lg p-4 shadow-sm\">
+        <p class=\"text-sm text-muted-foreground\">已完成</p>
+        <p class=\"text-2xl font-bold text-foreground\">
+          {{ orders.filter(o => o.status === 'delivered').length }}
+        </p>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { withDefaults, defineProps } from 'vue';
-import type { Order } from '@/data/OrderManagementPage';
-import { getStatusText, getStatusColor } from '@/data/OrderManagementPage';
+<script setup lang=\"ts\">
+import { computed } from 'vue'
+import type { Order } from '@/data/OrderManagementPage'
+import { MOCK_ORDERS, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from '@/data/OrderManagementPage'
 
+// Props with defaults
 interface Props {
-  orders?: Order[];
+  orders?: Order[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  orders: () => []
-});
+  orders: () => MOCK_ORDERS
+})
 
-// 格式化日期
-const formatDate = (dateString: string): string => {
-  const date = new Date(dateString);
+// Computed properties
+const ORDER_STATUS_LABELS_COMPUTED = computed(() => ORDER_STATUS_LABELS)
+const ORDER_STATUS_COLORS_COMPUTED = computed(() => ORDER_STATUS_COLORS)
+
+// Helper functions
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
   return date.toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
-};
+  })
+}
 
-// 查看订单详情
-const viewOrderDetail = (orderId: string) => {
-  window.location.href = `/OrderDetailPage?orderId=${orderId}`;
-};
-
-// 去购物
+// Navigation functions
 const goToHomePage = () => {
-  window.location.href = '/HomePage';
-};
+  window.location.href = './HomePage.html'
+}
+
+const viewOrderDetail = (orderId: string) => {
+  window.location.href = `./OrderDetailPage.html?id=${orderId}`
+}
 </script>
 
 <style scoped>
-/* 可以添加额外的样式 */
+.order-list-enter-active,
+.order-list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.order-list-enter-from,
+.order-list-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
 </style>

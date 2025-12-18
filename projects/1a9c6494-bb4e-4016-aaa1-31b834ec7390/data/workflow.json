@@ -1,0 +1,193 @@
+{
+  "functional_spec": "在线商城系统，包含商品展示、购物车和订单管理功能",
+  "pages": [
+    {
+      "id": 100001,
+      "name": "首页",
+      "en_name": "HomePage",
+      "description": "商城首页，展示热门商品和分类导航",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200001,
+          "name": "查看商品详情",
+          "trigger": "点击商品卡片",
+          "target_page_id": 100002
+        },
+        {
+          "id": 200002,
+          "name": "查看购物车",
+          "trigger": "点击购物车图标",
+          "target_page_id": 100003
+        },
+        {
+          "id": 200003,
+          "name": "查看订单",
+          "trigger": "点击订单管理",
+          "target_page_id": 100004
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100002,
+      "name": "商品详情页",
+      "en_name": "ProductDetailPage",
+      "description": "展示单个商品的详细信息，支持加入购物车操作",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200004,
+          "name": "加入购物车",
+          "trigger": "点击加入购物车按钮",
+          "target_page_id": 100003
+        },
+        {
+          "id": 200005,
+          "name": "返回首页",
+          "trigger": "点击返回按钮",
+          "target_page_id": 100001
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100003,
+      "name": "购物车页",
+      "en_name": "ShoppingCartPage",
+      "description": "展示用户已添加的商品，支持修改数量和结算操作",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200006,
+          "name": "去结算",
+          "trigger": "点击结算按钮",
+          "target_page_id": 100004
+        },
+        {
+          "id": 200007,
+          "name": "继续购物",
+          "trigger": "点击继续购物按钮",
+          "target_page_id": 100001
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100004,
+      "name": "订单管理页",
+      "en_name": "OrderManagementPage",
+      "description": "展示用户订单列表，支持查看订单详情和订单状态",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200008,
+          "name": "查看订单详情",
+          "trigger": "点击订单条目",
+          "target_page_id": 100005
+        },
+        {
+          "id": 200009,
+          "name": "返回首页",
+          "trigger": "点击返回按钮",
+          "target_page_id": 100001
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100005,
+      "name": "订单详情页",
+      "en_name": "OrderDetailPage",
+      "description": "展示订单的详细信息，包括商品列表、价格和配送信息",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200010,
+          "name": "返回订单列表",
+          "trigger": "点击返回按钮",
+          "target_page_id": 100004
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    }
+  ],
+  "workflows": [
+    {
+      "id": 300001,
+      "name": "购物流程",
+      "description": "用户从浏览商品到完成订单的完整购物流程",
+      "workflow_tree": {
+        "page_id": 100001,
+        "navigation_id": null,
+        "position": "null",
+        "children": [
+          {
+            "page_id": 100002,
+            "navigation_id": 200001,
+            "position": "null",
+            "children": [
+              {
+                "page_id": 100003,
+                "navigation_id": 200004,
+                "position": "null",
+                "children": [
+                  {
+                    "page_id": 100004,
+                    "navigation_id": 200006,
+                    "position": "null",
+                    "children": [
+                      {
+                        "page_id": 100005,
+                        "navigation_id": 200008,
+                        "position": "null",
+                        "children": []
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "status": 3
+    },
+    {
+      "id": 300002,
+      "name": "订单查看流程",
+      "description": "用户查看订单列表和订单详情的流程",
+      "workflow_tree": {
+        "page_id": 100001,
+        "navigation_id": null,
+        "position": "null",
+        "children": [
+          {
+            "page_id": 100004,
+            "navigation_id": 200003,
+            "position": "null",
+            "children": [
+              {
+                "page_id": 100005,
+                "navigation_id": 200008,
+                "position": "null",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      "status": 3
+    }
+  ]
+}

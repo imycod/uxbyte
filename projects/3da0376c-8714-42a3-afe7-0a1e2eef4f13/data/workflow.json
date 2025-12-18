@@ -1,0 +1,117 @@
+{
+  "functional_spec": "任务管理系统，包含任务列表展示、任务详情查看和任务进度跟踪功能",
+  "pages": [
+    {
+      "id": 100001,
+      "name": "任务列表页",
+      "en_name": "taskListPage",
+      "description": "展示所有任务的列表，支持任务筛选和排序",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200001,
+          "name": "查看任务详情",
+          "trigger": "点击任务卡片",
+          "target_page_id": 100002
+        },
+        {
+          "id": 200002,
+          "name": "查看进度跟踪",
+          "trigger": "点击进度跟踪按钮",
+          "target_page_id": 100003
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100002,
+      "name": "任务详情页",
+      "en_name": "taskDetailPage",
+      "description": "展示单个任务的详细信息，包括描述、截止日期、负责人等",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200003,
+          "name": "返回任务列表",
+          "trigger": "点击返回按钮",
+          "target_page_id": 100001
+        },
+        {
+          "id": 200004,
+          "name": "查看进度跟踪",
+          "trigger": "点击进度跟踪按钮",
+          "target_page_id": 100003
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100003,
+      "name": "进度跟踪页",
+      "en_name": "progressTrackingPage",
+      "description": "展示任务的进度状态和完成情况，支持进度更新",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200005,
+          "name": "返回任务列表",
+          "trigger": "点击返回按钮",
+          "target_page_id": 100001
+        },
+        {
+          "id": 200006,
+          "name": "查看任务详情",
+          "trigger": "点击任务详情按钮",
+          "target_page_id": 100002
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    }
+  ],
+  "workflows": [
+    {
+      "id": 300001,
+      "name": "任务查看流程",
+      "description": "用户从任务列表查看任务详情的完整流程",
+      "workflow_tree": {
+        "page_id": 100001,
+        "navigation_id": null,
+        "position": "null",
+        "children": [
+          {
+            "page_id": 100002,
+            "navigation_id": 200001,
+            "position": "null",
+            "children": []
+          }
+        ]
+      },
+      "status": 3
+    },
+    {
+      "id": 300002,
+      "name": "进度跟踪流程",
+      "description": "用户查看和跟踪任务进度的流程",
+      "workflow_tree": {
+        "page_id": 100001,
+        "navigation_id": null,
+        "position": "null",
+        "children": [
+          {
+            "page_id": 100003,
+            "navigation_id": 200002,
+            "position": "null",
+            "children": []
+          }
+        ]
+      },
+      "status": 3
+    }
+  ]
+}

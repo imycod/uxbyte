@@ -1,0 +1,99 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+---
+
+<BaseLayout title="任务管理系统">
+  <Header client:load />
+  
+  <main class="flex-1">
+    <div class="container mx-auto px-4 py-16">
+      <div class="text-center max-w-3xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-foreground mb-6">
+          欢迎使用任务管理系统
+        </h1>
+        <p class="text-xl text-muted-foreground mb-10">
+          一个高效的任务管理解决方案，帮助团队更好地规划、跟踪和完成任务。
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          <div class="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-foreground mb-2">任务列表</h3>
+            <p class="text-muted-foreground mb-4">
+              查看所有任务，按优先级、状态或截止日期进行筛选和排序。
+            </p>
+            <a href="./TaskListPage.html" class="text-primary hover:underline font-medium">
+              进入任务列表 →
+            </a>
+          </div>
+          
+          <div class="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-foreground mb-2">任务详情</h3>
+            <p class="text-muted-foreground mb-4">
+              查看任务的详细信息，包括描述、分配人员、截止日期等。
+            </p>
+            <a href="./TaskDetailPage.html" class="text-primary hover:underline font-medium">
+              查看任务详情 →
+            </a>
+          </div>
+          
+          <div class="bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div class="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 mx-auto">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-foreground mb-2">进度跟踪</h3>
+            <p class="text-muted-foreground mb-4">
+              实时跟踪任务进度，查看完成情况和统计信息。
+            </p>
+            <a href="./ProgressTrackingPage.html" class="text-primary hover:underline font-medium">
+              查看进度跟踪 →
+            </a>
+          </div>
+        </div>
+        
+        <div class="bg-muted rounded-lg p-8 border border-border">
+          <h2 class="text-2xl font-bold text-foreground mb-4">开始使用</h2>
+          <p class="text-muted-foreground mb-6 max-w-2xl mx-auto">
+            任务管理系统帮助您和您的团队更高效地协作。通过直观的界面和强大的功能，
+            您可以轻松管理任务、跟踪进度并确保项目按时完成。
+          </p>
+          <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a 
+              href="./TaskListPage.html" 
+              class="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              查看所有任务
+            </a>
+            <a 
+              href="./ProgressTrackingPage.html" 
+              class="px-6 py-3 bg-background text-foreground border border-border rounded-lg font-medium hover:bg-muted transition-colors"
+            >
+              查看进度报告
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer client:load />
+</BaseLayout>
+
+<style>
+  main {
+    min-height: calc(100vh - 8rem);
+  }
+</style>

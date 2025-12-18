@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+import TaskDetail from '@/components/TaskDetailPage/TaskDetail.vue'
+import { MOCK_TASK_DATA } from '@/data/TaskDetailPage'
+---
+
+<BaseLayout title="任务详情">
+  <Header client:load />
+  
+  <main class="flex-1">
+    <div class="container mx-auto px-4 py-8">
+      <TaskDetail 
+        client:load 
+        task={MOCK_TASK_DATA}
+      />
+    </div>
+  </main>
+
+  <Footer client:load />
+</BaseLayout>
+
+<style>
+  main {
+    min-height: calc(100vh - 8rem);
+  }
+</style>

@@ -1,0 +1,119 @@
+{
+  "functional_spec": "博客系统包含文章列表展示、文章详情查看以及分类管理功能",
+  "pages": [
+    {
+      "id": 100001,
+      "name": "文章列表页",
+      "en_name": "articleListPage",
+      "description": "展示所有博客文章的列表，支持按分类筛选和搜索功能",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200001,
+          "name": "查看文章详情",
+          "trigger": "点击文章标题或封面",
+          "target_page_id": 100002
+        },
+        {
+          "id": 200002,
+          "name": "进入分类管理",
+          "trigger": "点击分类管理菜单",
+          "target_page_id": 100003
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100002,
+      "name": "文章详情页",
+      "en_name": "articleDetailPage",
+      "description": "展示单篇博客文章的详细内容，包括标题、正文、分类、发布时间等信息",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200003,
+          "name": "返回文章列表",
+          "trigger": "点击返回按钮",
+          "target_page_id": 100001
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    },
+    {
+      "id": 100003,
+      "name": "分类管理页",
+      "en_name": "categoryManagementPage",
+      "description": "管理博客文章分类，支持添加、编辑、删除分类功能",
+      "is_core": true,
+      "navigation_list": [
+        {
+          "id": 200004,
+          "name": "返回文章列表",
+          "trigger": "点击返回按钮",
+          "target_page_id": 100001
+        }
+      ],
+      "status": 50,
+      "position": null,
+      "can_hard_delete": false
+    }
+  ],
+  "workflows": [
+    {
+      "id": 300001,
+      "name": "浏览文章流程",
+      "description": "用户浏览文章列表并查看文章详情的完整流程",
+      "workflow_tree": {
+        "page_id": 100001,
+        "navigation_id": null,
+        "position": "null",
+        "children": [
+          {
+            "page_id": 100002,
+            "navigation_id": 200001,
+            "position": "null",
+            "children": [
+              {
+                "page_id": 100001,
+                "navigation_id": 200003,
+                "position": "null",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      "status": 3
+    },
+    {
+      "id": 300002,
+      "name": "管理分类流程",
+      "description": "用户管理文章分类的完整流程",
+      "workflow_tree": {
+        "page_id": 100001,
+        "navigation_id": null,
+        "position": "null",
+        "children": [
+          {
+            "page_id": 100003,
+            "navigation_id": 200002,
+            "position": "null",
+            "children": [
+              {
+                "page_id": 100001,
+                "navigation_id": 200004,
+                "position": "null",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      "status": 3
+    }
+  ]
+}
