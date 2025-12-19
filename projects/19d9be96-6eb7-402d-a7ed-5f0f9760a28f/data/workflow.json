@@ -1,18 +1,18 @@
 {
-  "functional_spec": "任务管理系统，包含任务列表展示、任务详情查看和任务进度跟踪功能",
+  "functional_spec": "任务管理系统，包含任务列表展示、任务详情查看和进度跟踪功能",
   "pages": [
     {
       "id": 100001,
       "name": "任务列表页",
       "en_name": "taskListPage",
-      "description": "展示所有任务的列表，支持任务筛选和排序",
+      "description": "展示所有任务的列表，支持筛选和搜索功能",
       "is_core": true,
       "processing": "done",
       "navigation_list": [
         {
           "id": 200001,
           "name": "查看任务详情",
-          "trigger": "点击任务卡片",
+          "trigger": "点击任务条目",
           "target_page_id": 100002
         },
         {
@@ -43,7 +43,7 @@
         {
           "id": 200004,
           "name": "查看进度跟踪",
-          "trigger": "点击进度跟踪按钮",
+          "trigger": "点击进度跟踪链接",
           "target_page_id": 100003
         }
       ],
@@ -55,7 +55,7 @@
       "id": 100003,
       "name": "进度跟踪页",
       "en_name": "progressTrackingPage",
-      "description": "展示任务的进度状态和完成情况，支持进度更新",
+      "description": "展示任务完成进度和历史记录，支持进度更新",
       "is_core": true,
       "processing": "done",
       "navigation_list": [
@@ -68,7 +68,7 @@
         {
           "id": 200006,
           "name": "查看任务详情",
-          "trigger": "点击任务详情按钮",
+          "trigger": "点击任务详情链接",
           "target_page_id": 100002
         }
       ],

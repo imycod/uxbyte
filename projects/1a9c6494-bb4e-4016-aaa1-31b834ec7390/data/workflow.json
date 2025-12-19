@@ -7,6 +7,7 @@
       "en_name": "HomePage",
       "description": "商城首页，展示热门商品和分类导航",
       "is_core": true,
+      "processing": "done",
       "navigation_list": [
         {
           "id": 200001,
@@ -35,6 +36,7 @@
       "id": 100002,
       "name": "商品详情页",
       "en_name": "ProductDetailPage",
+      "processing": "done",
       "description": "展示单个商品的详细信息，支持加入购物车操作",
       "is_core": true,
       "navigation_list": [
@@ -58,6 +60,7 @@
     {
       "id": 100003,
       "name": "购物车页",
+      "processing": "done",
       "en_name": "ShoppingCartPage",
       "description": "展示用户已添加的商品，支持修改数量和结算操作",
       "is_core": true,
@@ -82,6 +85,7 @@
     {
       "id": 100004,
       "name": "订单管理页",
+      "processing": "done",
       "en_name": "OrderManagementPage",
       "description": "展示用户订单列表，支持查看订单详情和订单状态",
       "is_core": true,
@@ -106,6 +110,7 @@
     {
       "id": 100005,
       "name": "订单详情页",
+      "processing": "done",
       "en_name": "OrderDetailPage",
       "description": "展示订单的详细信息，包括商品列表、价格和配送信息",
       "is_core": true,

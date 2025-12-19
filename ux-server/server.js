@@ -303,15 +303,35 @@ class Server {
                 pages,
                 this.currentWorkflow,
                 {
-                    onProgress: (progress) => {
+                    onProgress: async (progress) => {
                         // Update status
                         if (progress.pageId) {
+                            const status = progress.type.includes('error') ? 'error' :
+                                progress.type.includes('complete') ? 'complete' : 'generating';
+
                             this.generationStatus.set(progress.pageId, {
-                                status: progress.type.includes('error') ? 'error' :
-                                    progress.type.includes('complete') ? 'complete' : 'generating',
+                                status: status,
                                 pageName: progress.pageName,
                                 error: progress.error
                             });
+
+                            // Persist status to workflow if complete or error
+                            if (status === 'complete' || status === 'error') {
+                                if (this.currentWorkflow && this.currentWorkflow.pages) {
+                                    const page = this.currentWorkflow.pages.find(p => p.id === progress.pageId);
+                                    if (page) {
+                                        page.processing = status === 'complete' ? 'done' : 'error';
+
+                                        // Save to storage
+                                        try {
+                                            await storageManager.saveWorkflowData(this.currentProjectId, this.currentWorkflow);
+                                            console.log(`[Server] Updated status for page ${progress.pageId} to ${page.processing}`);
+                                        } catch (err) {
+                                            console.error('[Server] Failed to save workflow status:', err);
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         // Broadcast progress
@@ -329,6 +349,15 @@ class Server {
                 failCount: result.failCount,
                 results: result.results
             });
+
+            // Check if all pages are done
+            if (this.currentWorkflow && this.currentWorkflow.pages) {
+                const allDone = this.currentWorkflow.pages.every(p => p.processing === 'done');
+                if (allDone) {
+                    console.log('[Server] All pages generated, triggering auto-build...');
+                    this.triggerAutoBuild();
+                }
+            }
 
         } catch (error) {
             console.error('[Server] Generation error:', error);
@@ -364,7 +393,6 @@ class Server {
                     }
                 }
             }
-
             const status = {
                 hasWorkflow: !!this.currentWorkflow,
                 workflow: this.currentWorkflow,
@@ -385,7 +413,7 @@ class Server {
                         else if (genStatus.status === 'error') processing = 'error';
                         else if (genStatus.status === 'generating') processing = 'generating';
                     } else if (page.status === 50) { // Historical 'done' status from workflow.js example if any
-                        // processing = 'done'; 
+                        processing = page.processing;
                         // Note: The user prompt mentions "判断当前项目pages 是否有done". 
                         // If the loaded workflow already has status marking completion, we should use it.
                         // But looking at workflow.js, status values like 50, -2, -3 exist. 
@@ -417,13 +445,29 @@ class Server {
                 message: '构建已开始'
             });
 
-            // Broadcast build started
-            sseManager.broadcast('build:started', {
-                message: '开始构建项目...'
-            });
+            this.triggerAutoBuild();
 
-            // Start build asynchronously
+        } catch (error) {
+            console.error('[API] Build error:', error);
+            sseManager.broadcast('build:error', {
+                error: error.message
+            });
+        }
+    }
+
+    /**
+     * Helper to trigger build with auto-fix
+     */
+    async triggerAutoBuild() {
+        // Broadcast build started
+        sseManager.broadcast('build:started', {
+            message: '开始构建项目 (Auto-Build)...'
+        });
+
+        // Start build asynchronously with autoFix
+        try {
             const result = await buildManager.build({
+                autoFix: true, // Enable auto-fix
                 onProgress: (progress) => {
                     sseManager.broadcast('build:progress', progress);
                 },
@@ -440,11 +484,12 @@ class Server {
                     });
                 }
             });
-
-        } catch (error) {
-            console.error('[API] Build error:', error);
+            return result;
+        } catch (err) {
+            console.error('[Server] Auto-build error:', err);
             sseManager.broadcast('build:error', {
-                error: error.message
+                message: '构建启动失败',
+                error: err.message
             });
         }
     }
@@ -539,22 +584,45 @@ class Server {
             const projectPath = storageManager.getProjectPath(projectId);
             const sourceCodePath = path.join(projectPath, 'code');
 
-            // Source directories
-            const sourcePagesDir = path.join(sourceCodePath, 'pages');
-            const sourceComponentsDir = path.join(sourceCodePath, 'components');
-            const sourceDataDir = path.join(sourceCodePath, 'data');
-
             // Target directories (from config)
             const targetPagesDir = config.paths.pagesDir;
             const targetComponentsDir = config.paths.componentsDir;
             const targetDataDir = config.paths.dataDir;
 
-            console.log(`[Server] Loading project ${projectId} from ${sourceCodePath}`);
+            console.log(`[Server] Switching to project ${projectId}...`);
 
-            // Copy directories
-            await this.copyDirectory(sourcePagesDir, targetPagesDir);
-            await this.copyDirectory(sourceComponentsDir, targetComponentsDir);
-            await this.copyDirectory(sourceDataDir, targetDataDir);
+            // 1. Always clear target directories first to ensure clean state (replace logic)
+            console.log('[Server] Clearing target directories...');
+            try {
+                await Promise.all([
+                    storageManager.clearDirectory(targetPagesDir),
+                    storageManager.clearDirectory(targetComponentsDir),
+                    storageManager.clearDirectory(targetDataDir)
+                ]);
+            } catch (clearErr) {
+                console.error('[Server] Warning: Failed to clear some directories:', clearErr);
+                // Continue anyway, maybe new dirs need creation
+            }
+
+            // 2. Check and copy source code if exists
+            try {
+                await fs.access(sourceCodePath);
+
+                console.log(`[Server] Loading project code from ${sourceCodePath}`);
+
+                // Source directories
+                const sourcePagesDir = path.join(sourceCodePath, 'pages');
+                const sourceComponentsDir = path.join(sourceCodePath, 'components');
+                const sourceDataDir = path.join(sourceCodePath, 'data');
+
+                // Copy directories
+                await this.copyDirectory(sourcePagesDir, targetPagesDir);
+                await this.copyDirectory(sourceComponentsDir, targetComponentsDir);
+                await this.copyDirectory(sourceDataDir, targetDataDir);
+
+            } catch (error) {
+                console.log(`[Server] Project ${projectId} has no generated code directory. Target directories left empty.`);
+            }
 
             this.sendJson(res, 200, {
                 success: true,
@@ -569,9 +637,51 @@ class Server {
                     this.currentWorkflow = workflow;
                     // Reset generation status for the new project context
                     this.generationStatus.clear();
+
+                    // Synchronize status based on file existence
+                    console.log('[Server] Synchronizing workflow status...');
+                    let statusUpdated = false;
+
+                    if (this.currentWorkflow.pages) {
+                        for (const page of this.currentWorkflow.pages) {
+                            // Determine page name (PascalCase) for file checks
+                            // Assuming page.name is usable, or format it
+                            const pageName = page.name || page.id;
+
+                            // Check paths
+                            const pageFilePath = path.join(config.paths.pagesDir, `${pageName}.astro`);
+                            const componentDirPath = path.join(config.paths.componentsDir, pageName);
+
+                            try {
+                                // Check page file
+                                await fs.access(pageFilePath);
+
+                                // Check component dir
+                                await fs.access(componentDirPath);
+                                const componentFiles = await fs.readdir(componentDirPath);
+                                const hasVueFile = componentFiles.some(f => f.endsWith('.vue'));
+
+                                if (hasVueFile) {
+                                    if (page.processing !== 'done') {
+                                        page.processing = 'done';
+                                        statusUpdated = true;
+                                        console.log(`[Server] Verified files for ${pageName}, marking as done.`);
+                                    }
+                                }
+                            } catch (err) {
+                                // File missing, not done
+                                // console.log(`[Server] Check failed for ${pageName}: ${err.message}`);
+                            }
+                        }
+                    }
+
+                    if (statusUpdated) {
+                        await storageManager.saveWorkflowData(projectId, this.currentWorkflow);
+                        console.log('[Server] Workflow status updated and saved.');
+                    }
                 }
             } catch (e) {
-                console.warn(`[Server] Could not automatically load workflow data after project load: ${e.message}`);
+                console.warn(`[Server] Could not automatically load or sync workflow data after project load: ${e.message}`);
             }
 
         } catch (error) {

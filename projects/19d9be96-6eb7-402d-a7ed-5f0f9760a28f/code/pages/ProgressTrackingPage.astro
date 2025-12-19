@@ -2,18 +2,18 @@
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import Header from '@/components/common/Header.vue'
 import Footer from '@/components/common/Footer.vue'
-import OrderList from '@/components/OrderManagementPage/OrderList.vue'
-import { MOCK_ORDERS } from '@/data/OrderManagementPage'
+import ProgressTracking from '@/components/ProgressTracking/ProgressTracking.vue'
+import { MOCK_PROGRESS_TRACKING_DATA } from '@/data/ProgressTracking'
 ---
 
-<BaseLayout title="订单管理">
+<BaseLayout title="进度跟踪">
   <Header client:load />
   
   <main class="flex-1">
     <div class="container mx-auto px-4 py-8">
-      <OrderList 
+      <ProgressTracking 
         client:load 
-        orders={MOCK_ORDERS}
+        data={MOCK_PROGRESS_TRACKING_DATA}
       />
     </div>
   </main>

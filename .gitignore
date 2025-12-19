@@ -35,3 +35,7 @@ ux-client/dist/*
 
 ux-client/node_modules/*
 ux-server/node_modules/*
+
+ux-client/src/components/*
+ux-client/src/pages/*
+ux-client/src/data/*

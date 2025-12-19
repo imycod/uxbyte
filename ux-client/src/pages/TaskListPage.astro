@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
+import TaskList from '@/components/TaskListPage/TaskList.vue'
+import { MOCK_TASKS, STATUS_OPTIONS, PRIORITY_OPTIONS } from '@/data/TaskListPage'
+---
+
+<BaseLayout title="任务列表">
+  <Header client:load />
+  
+  <main class="flex-1">
+    <div class="container mx-auto px-4 py-8">
+      <TaskList 
+        client:load 
+        tasks={MOCK_TASKS}
+        statusOptions={STATUS_OPTIONS}
+        priorityOptions={PRIORITY_OPTIONS}
+      />
+    </div>
+  </main>
+
+  <Footer client:load />
+</BaseLayout>
+
+<style>
+  main {
+    min-height: calc(100vh - 8rem);
+  }
+</style>

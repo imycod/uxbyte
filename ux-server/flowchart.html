@@ -394,21 +394,33 @@
 
         async function loadWorkflow() {
             try {
-                const response = await fetch('/api/workflow/status');
+                // Get projectId from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('projectId');
+
+                let url = '/api/workflow/status';
+                if (projectId) {
+                    url += `?projectId=${projectId}`;
+                }
+
+                const response = await fetch(url);
                 const data = await response.json();
 
                 if (!data.hasWorkflow) {
-                    window.location.href = '/index.html';
+                    // Only redirect if no workflow and no specific project requested
+                    if (!projectId) {
+                        window.location.href = '/index.html';
+                    } else {
+                        alert('Requested project not found or has no workflow.');
+                    }
                     return;
                 }
 
                 workflow = data.workflow;
 
-                // Initialize generation status
-                if (data.generationStatus) {
-                    data.generationStatus.forEach(status => {
-                        generationStatus.set(status.pageId, status);
-                    });
+                // Keep projectId if valid
+                if (projectId) {
+                    // Update current URL if needed or store it
                 }
 
                 renderWorkflow();
@@ -430,26 +442,35 @@
             pageList.innerHTML = '';
 
             workflow.pages.forEach(page => {
-                const status = generationStatus.get(page.id);
-                const pageEl = createPageElement(page, status);
+                console.log('page---', page)
+                // Use 'processing' field if available, or fallback
+                // status from server generationStatus is also valid but processing is simpler
+                const pageEl = createPageElement(page);
                 pageList.appendChild(pageEl);
             });
 
             updateStats();
+            checkPreviewAvailability();
         }
 
-        function createPageElement(page, status) {
+        function createPageElement(page) {
             const div = document.createElement('div');
             div.className = 'page-item';
             div.dataset.pageId = page.id;
 
-            if (status) {
-                div.classList.add(status.status);
+            // processing: 'done' | 'generating' | 'pending' | 'error'
+            const statusClass = page.processing === 'done' ? 'complete' :
+                (page.processing === 'generating' ? 'generating' :
+                    (page.processing === 'error' ? 'error' : ''));
+
+            if (statusClass) {
+                div.classList.add(statusClass);
             }
 
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'page-checkbox';
+            // Disable checkbox if already done/generating? Maybe not
             checkbox.checked = selectedPageIds.has(page.id);
             checkbox.addEventListener('change', (e) => {
                 if (e.target.checked) {
@@ -475,17 +496,13 @@
             info.appendChild(name);
             info.appendChild(desc);
 
-            if (status) {
-                const statusEl = document.createElement('span');
-                statusEl.className = `page-status ${status.status}`;
-                statusEl.textContent = {
-                    pending: '待生成',
-                    generating: '生成中...',
-                    complete: '已完成',
-                    error: '错误'
-                }[status.status] || status.status;
-                info.appendChild(statusEl);
-            }
+            const statusEl = document.createElement('span');
+            statusEl.className = `page-status ${statusClass || 'pending'}`;
+            const statusText = page.processing === 'done' ? '已完成' :
+                (page.processing === 'generating' ? '生成中...' :
+                    (page.processing === 'error' ? '错误' : '待生成'));
+            statusEl.textContent = statusText;
+            info.appendChild(statusEl);
 
             div.appendChild(checkbox);
             div.appendChild(info);
@@ -496,9 +513,23 @@
         function updateStats() {
             document.getElementById('selectedPages').textContent = selectedPageIds.size;
 
-            const generatedCount = Array.from(generationStatus.values())
-                .filter(s => s.status === 'complete').length;
-            document.getElementById('generatedPages').textContent = generatedCount;
+            if (workflow && workflow.pages) {
+                const generatedCount = workflow.pages.filter(p => p.processing === 'done').length;
+                document.getElementById('generatedPages').textContent = generatedCount;
+            }
+        }
+
+        function checkPreviewAvailability() {
+            if (workflow && workflow.pages) {
+                const hasDonePages = workflow.pages.some(p => p.processing === 'done');
+                const previewBtn = document.getElementById('previewBtn');
+                if (hasDonePages) {
+                    previewBtn.style.display = 'inline-block';
+                    previewBtn.disabled = false;
+                } else {
+                    previewBtn.style.display = 'none';
+                }
+            }
         }
 
         function updateGenerateButton() {
@@ -558,8 +589,17 @@
         });
 
         // Preview button
-        document.getElementById('previewBtn').addEventListener('click', () => {
-            window.location.href = '/preview.html';
+        document.getElementById('previewBtn').addEventListener('click', async () => {
+            // Disabled to prevent double clicks
+            const btn = document.getElementById('previewBtn');
+            btn.disabled = true;
+            btn.textContent = '准备预览...';
+
+            // Trigger auto build
+            await triggerBuild();
+
+            // Restore button state handled in buildComplete or via reload ideally, 
+            // but here we just wait for build completion event
         });
 
         // SSE Connection
@@ -596,19 +636,20 @@
                     data.type.includes('complete') ? 'success' : 'info';
 
                 addLog(message, logType);
+
+                // If a page status changed to complete/error, we might want to refresh checking logic
+                if (data.type.includes('complete') || data.type.includes('error')) {
+                    // Optionally reload logic or just wait for generation:complete
+                    checkPreviewAvailability();
+                }
             });
 
             eventSource.addEventListener('generation:complete', (e) => {
                 const data = JSON.parse(e.data);
                 addLog(data.message, 'success');
 
-                // Show preview button
-                document.getElementById('previewBtn').style.display = 'inline-block';
-
-                // Auto-trigger build
-                setTimeout(() => {
-                    triggerBuild();
-                }, 1000);
+                // Refresh workflow to get persisted status updates from server
+                loadWorkflow();
             });
 
             eventSource.addEventListener('generation:error', (e) => {
@@ -631,11 +672,25 @@
             eventSource.addEventListener('build:complete', (e) => {
                 const data = JSON.parse(e.data);
                 addLog('✅ ' + data.message, 'success');
+
+                // Navigate to preview page on build success if it was triggered by preview button
+                const btn = document.getElementById('previewBtn');
+                if (btn.textContent === '准备预览...') {
+                    window.location.href = '/preview.html';
+                    btn.textContent = '预览应用';
+                    btn.disabled = false;
+                }
             });
 
             eventSource.addEventListener('build:error', (e) => {
                 const data = JSON.parse(e.data);
                 addLog('❌ 构建失败: ' + data.error, 'error');
+
+                const btn = document.getElementById('previewBtn');
+                if (btn.textContent === '准备预览...') {
+                    btn.textContent = '预览应用';
+                    btn.disabled = false;
+                }
             });
         }
 

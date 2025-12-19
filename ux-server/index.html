@@ -314,7 +314,8 @@
 
     <div class="project-list-section" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
         <h3 style="color: #333; margin-bottom: 15px;">📋 已创建的项目</h3>
-        <div id="projectList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+        <div id="projectList"
+            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
             <!-- 项目列表将在这里动态生成 -->
         </div>
     </div>
@@ -508,7 +509,8 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(`项目 ${projectId} 加载成功！文件已复制到客户端目录。`);
+                    alert(`项目 ${projectId} 加载成功！进入工作流视图。`);
+                    window.location.href = `/flowchart.html?projectId=${projectId}`;
                 } else {
                     throw new Error(result.error || '加载失败');
                 }
@@ -526,7 +528,7 @@
             try {
                 const response = await fetch('/api/projects/list');
                 const result = await response.json();
-                
+
                 if (result.success) {
                     displayProjectList(result.projects);
                 }
@@ -536,7 +538,7 @@
         }
 
         function displayProjectList(projects) {
-            console.log('Displaying projects:' , projects)
+            console.log('Displaying projects:', projects)
             if (!projects || projects.length === 0) {
                 projectListEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #999; padding: 20px;">暂无项目</div>';
                 return;

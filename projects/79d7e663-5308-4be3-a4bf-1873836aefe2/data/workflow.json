@@ -7,6 +7,7 @@
       "en_name": "articleListPage",
       "description": "展示所有博客文章的列表，支持按分类筛选和搜索功能",
       "is_core": true,
+      "processing": "pending",
       "navigation_list": [
         {
           "id": 200001,
@@ -29,6 +30,7 @@
       "id": 100002,
       "name": "文章详情页",
       "en_name": "articleDetailPage",
+      "processing": "pending",
       "description": "展示单篇博客文章的详细内容，包括标题、正文、分类、发布时间等信息",
       "is_core": true,
       "navigation_list": [
@@ -47,6 +49,7 @@
       "id": 100003,
       "name": "分类管理页",
       "en_name": "categoryManagementPage",
+      "processing": "pending",
       "description": "管理博客文章分类，支持添加、编辑、删除分类功能",
       "is_core": true,
       "navigation_list": [
